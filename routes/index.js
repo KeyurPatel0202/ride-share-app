@@ -8,6 +8,6 @@ const riderAdRoute = require('./rider-route');
 app.use('/',authRoute);
 app.use('/cars',carRoute);
 app.use('/user', userRoute);
-app.use('/rider-ad',riderAdRoute);
+app.use('/rides',riderAdRoute);
 
 module.exports = app;

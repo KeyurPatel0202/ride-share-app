@@ -14,12 +14,16 @@ main().catch(err => console.log(err));
 
 async function main() {
   await mongoose
-    .connect(config.dbConfig.databaseUrl)
+    .connect(config.dbConfig.databaseUrl,{
+       useNewUrlParser: true, 
+       useUnifiedTopology: true,
+    })
     .then(() => {
       console.log("Mongodb connected");
     })
     .catch((error) => {
-      console.log({ error_database_connection: error.message });
+      console.log({ error_database_connection: error.message },
+        );
     });
 }
 

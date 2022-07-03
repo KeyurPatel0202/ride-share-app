@@ -8,7 +8,7 @@ const mongoose = require("mongoose");
 
 const storeUserRequest = async (req, res) => {
     try{
-        const { rider_ad_id, no_of_seat, status, is_complete} = req.body;
+        const { ride_ad_id, no_of_seat, status, is_complete} = req.body;
         const user_id = req.payload.aud;
         
         const existRequest = await UserRequest.exists({user_id});
@@ -17,7 +17,7 @@ const storeUserRequest = async (req, res) => {
         
         const riderAd = await RiderAd.aggregate([
             {
-                $match: {_id: mongoose.Types.ObjectId(rider_ad_id)},
+                $match: {_id: mongoose.Types.ObjectId(ride_ad_id)},
             },
             {
                 $limit: 1
@@ -47,15 +47,13 @@ const storeUserRequest = async (req, res) => {
 
         const requestedUsers = await UserRequest.aggregate([
             {
-                $match: {rider_ad_id: mongoose.Types.ObjectId(rider_ad_id),status:'ACCEPTED'},
+                $match: {ride_ad_id: mongoose.Types.ObjectId(ride_ad_id),status:'ACCEPTED'},
             },
-            { $group: { _id: rider_ad_id, bookedSeat: { $sum: "$no_of_seat" } } }
+            { $group: { _id: ride_ad_id, bookedSeat: { $sum: "$no_of_seat" } } }
             
         ]);
 
         const availableSeats =requestedUsers[0]? carSeats - requestedUsers[0]['bookedSeat'] : carSeats;
-
-        console.log({requestedUsers,availableSeats});
 
         if(availableSeats < no_of_seat){
             throw new Error(`Only ${availableSeats} are available`);
@@ -63,7 +61,7 @@ const storeUserRequest = async (req, res) => {
 
         const saveUserRequest = await UserRequest.create({
             user_id,
-            rider_ad_id,
+            ride_ad_id,
             no_of_seat,
             status,
             is_complete

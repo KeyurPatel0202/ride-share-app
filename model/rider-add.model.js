@@ -31,6 +31,11 @@ const RiderAdSchema = mongoose.Schema({
           type: String,
           required: true,
       },
+      status:{
+        type: String,
+        enum: ['NOT_STARTED','STARTED','COMPLETED'],
+        default: 'NOT_STARTED',
+      },
       createdAt:{
         type: Date,
         default:()=>Date.now(),

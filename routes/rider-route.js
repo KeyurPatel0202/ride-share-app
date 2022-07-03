@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const riderController = require('../controller/rider-add-controller');
+const riderController = require('../controller/rider-controller');
 const {verifyAccessToken} = require('../utils/jwt-helper');
 
-router.get('/', verifyAccessToken, riderController.showAdRide);
 router.post('/', verifyAccessToken, riderController.adRide);
+router.get('/', verifyAccessToken, riderController.showAdRide);
 
 module.exports = router;

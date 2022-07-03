@@ -6,7 +6,7 @@ const UserRequestSchema = mongoose.Schema({
       ref: "User",
       required: true,
     },
-    rider_ad_id:{
+    ride_ad_id:{
       type: mongoose.SchemaTypes.ObjectId,
       ref: "RiderAd",
       required: true,
@@ -17,7 +17,8 @@ const UserRequestSchema = mongoose.Schema({
     },
     status: {
       type: String,
-      default : 'PENDING'
+      enum: ['PENDING','ACCEPTED','REJECTED','COMPLETED'],
+      default : 'PENDING',
     },
     is_completeted:{
       type: Boolean,
