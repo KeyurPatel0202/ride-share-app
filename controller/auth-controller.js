@@ -5,6 +5,8 @@ const createError = require("http-errors");
 const getMessage = require('../utils/message');
 const { signAccessToken, signRefreshToken, verifyRefreshToken } = require('../utils/jwt-helper');
 const {fileCheckAndUpload} = require('../utils/file-upload');
+const nodemailer = require('nodemailer');
+const config = require('../config/config');
 
 const register = async (req, res)=>{		
 	try{
@@ -12,7 +14,7 @@ const register = async (req, res)=>{
 			throw new Error(getMessage('PLEASE_SELECT_IMAGE'));
 		}
 		
-		const {fname,lname,phone,email,password,type} = req.body;
+		const {fname, lname, phone, gender, dob, address, country, state, city, zip_code, email, password, type} = req.body;
 		const exist = await User.exists({email});
 		
 		if(exist){
@@ -21,19 +23,16 @@ const register = async (req, res)=>{
 
 		const image = await fileCheckAndUpload(req.files['image'], '../public/images');
 
-		const reqData = {
-			fname,
-			lname,
-			phone,
-			email, 
-			password,
-			type,
-			image
-		}
+		const reqData = {fname, lname, phone, gender, dob, address, country, state, city, zip_code, email, password, type, image}
 
 		if(req.files.proof){
 			const proof = await fileCheckAndUpload(req.files['proof'], '../public/proof',/pdf/);
 			reqData.proof = proof;
+		}
+
+		if(req.files.study_permit){
+			const study_permit = await fileCheckAndUpload(req.files['study_permit'], '../public/study_permit',/jpg|jpeg|png|pdf/);
+			reqData.study_permit = study_permit;
 		}
 		
 		const saveUser = await User.create(reqData);
@@ -94,4 +93,37 @@ const refreshToken = async (req, res, next) => {
 	}
   };
 
-module.exports = {register, login, refreshToken};
+  const verification = (req, res) => {
+    try{
+        const code = Math.floor(100000 + Math.random() * 900000);
+
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: config.mailer.user,
+                pass: config.mailer.pass,
+            }
+        });
+
+        console.log(config.mailer.pass);
+        const mailOptions = {
+            from: config.mailer.user,
+            to: req.body.email,
+            subject: 'Your verification code...!!',
+            text: `Your verification code is ${code}`
+        };
+        
+        transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+                return sendErrorResponse(res,'Verification failed');
+            } else {
+                return sendSuccessResponse(res,'Verification successfully', code);
+            }
+
+        });
+    }catch(error){
+        return sendErrorResponse(res,error.message);
+    }
+};
+
+module.exports = {register, login, refreshToken, verification};

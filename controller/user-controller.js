@@ -1,6 +1,8 @@
 const UserRequest = require('../model/user.request.model');
 const userRating = require('../model/user.rating.model');
 const RiderAd  = require('../model/rider-add.model');
+const User = require('../model/user.model');
+
 const {sendSuccessResponse,sendErrorResponse} = require('../utils/response');
 const createError = require("http-errors");
 const getMessage = require('../utils/message');
@@ -11,7 +13,7 @@ const storeUserRequest = async (req, res) => {
         const { ride_ad_id, no_of_seat, status, is_complete} = req.body;
         const user_id = req.payload.aud;
         
-        const existRequest = await UserRequest.exists({user_id});
+        const existRequest = await UserRequest.exists({user_id,ride_ad_id});
 		
 		if(existRequest) throw new Error(getMessage('REQUEST_ALREADY_EXIST'));
         
@@ -154,4 +156,55 @@ const SubmitRating = async (req,res) => {
 
 }
 
-module.exports= {storeUserRequest, getUserRequest, updateUserRequest, SubmitRating};
+async function userList(req,res){
+    var {type,isVerified, isActive, status} = req.body;
+    var query = {};
+    query.isVerified = (typeof isVerified!= undefined) && isVerified != false ? true : false;
+    try{
+        var filter_data = [];
+        var query={};
+        if(type){
+            query.type = type;
+        }
+        if(isVerified){
+            query.isVerified = isVerified;
+        }
+
+        if(isActive){
+            query.isActive = isActive;
+        }
+
+        if(status){
+            query.status = status;
+        }
+
+        filter_data = await User.find(query);    
+        return sendSuccessResponse(res,"ALL "+ type +" RETRIEVE SUCCESFULLY!" , filter_data);
+
+    }
+    catch(error){
+        return sendErrorResponse(res,error.message);   
+    }
+}
+
+
+async function updateStatus (req,res){
+    var {user_id,status} = req.body;
+
+   if(!status){
+        return sendErrorResponse(res,getMessage('STATUS_FIELD_IS_REQUIRED'));   
+   }
+   if(!user_id){
+        return sendErrorResponse(res, getMessage('USER_ID_FIELD_IS_REQUIRED'));   
+   }
+    try{
+        var update_data = await User.updateOne( {_id: mongoose.Types.ObjectId(user_id)},{$set:{status}});
+        console.log(update_data)
+        return sendSuccessResponse(res, getMessage('USER_STATUS_UPDATED_SUCCESFULLY') , update_data);
+    }
+    catch(e){
+        return sendErrorResponse(res,e.message);   
+    }   
+}
+
+module.exports= {storeUserRequest, getUserRequest, updateUserRequest, SubmitRating, userList, updateStatus};

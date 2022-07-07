@@ -18,9 +18,38 @@ const UserSchema = mongoose.Schema({
     unique: true,
   },
   phone:{
-    type: Number,
+    type: String,
     required: true,
     unique: true,
+  },
+  gender:{
+    type: String,
+    enum: ['MALE','FEMALE'],
+    required: true,
+  },
+  dob:{
+    type: Date,
+    required: true,
+  },
+  address:{
+    type: String,
+    required: true,
+  },
+  country:{
+    type: String,
+    required: true,
+  },
+  state:{
+    type: String,
+    required: true,
+  },
+  city:{
+    type: String,
+    required: true,
+  },
+  zip_code:{
+    type: Number,
+    required: true,
   },
   password: {
     type: String,
@@ -37,6 +66,10 @@ const UserSchema = mongoose.Schema({
     type: String,
     required: isProofRequired
   },
+  study_permit:{
+    type: String,
+    required: isProofRequired
+  },
   isVerified: {
     type: Boolean,
     required: true,
@@ -46,6 +79,11 @@ const UserSchema = mongoose.Schema({
     type: Boolean,
     required: true,
     default : true
+  },
+  status:{
+    type: String,
+    enum:  ['PENDING','ACCEPTED','REJECTED'],
+    default: 'PENDING',
   },
   createdAt:{
     type: Date,

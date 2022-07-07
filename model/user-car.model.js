@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const userCarSchema = mongoose.Schema({
     carId: {
         type: mongoose.SchemaTypes.ObjectId,
-        ref: "User",
+        ref: "Car",
         required: true,
       },
     image:{
