@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require("bcrypt");
 
 const userType = ['USER','RIDER'];
+const config = require('../config/config');
 
 const UserSchema = mongoose.Schema({
 	fname:{
@@ -57,6 +58,7 @@ const UserSchema = mongoose.Schema({
   },
   image:{
     type:String,
+    get: getImage,
   },
   type:{
     type: String,
@@ -64,21 +66,23 @@ const UserSchema = mongoose.Schema({
   },
   proof:{
     type: String,
-    required: isProofRequired
+    required: isProofRequired,
+    get: getProof,
   },
   study_permit:{
     type: String,
-    required: isProofRequired
+    required: isProofRequired,
+    get: getStudyPermit,
   },
   isVerified: {
     type: Boolean,
     required: true,
-    default : false
+    default : false,
   },
   isActive:{
     type: Boolean,
     required: true,
-    default : true
+    default : true,
   },
   status:{
     type: String,
@@ -88,16 +92,31 @@ const UserSchema = mongoose.Schema({
   createdAt:{
     type: Date,
     default:()=>Date.now(),
-    immutable: true
+    immutable: true,
   },
   updatedAt: Date,
-});
+},
+{ toJSON: { getters: true }}
+);
 
 function isProofRequired(){
   if(userType.indexOf(this.type) === 1){
     return true;
   }
   return false;
+}
+
+
+function getImage(val){
+  return config.url + 'images/' + val;
+}
+
+function getProof(val){
+  return config.url + 'proof/' + val;
+}
+
+function getStudyPermit(val){
+  return config.url + 'study_permit/' + val;
 }
 
 UserSchema.pre('save',async function(next){

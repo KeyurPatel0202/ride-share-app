@@ -13,4 +13,6 @@ const mailer ={
   pass: process.env.PASSWORD,
 };
 
-module.exports = { dbConfig, mailer, PORT, JWT: jwtConfig };
+const url = process.env.URL;
+
+module.exports = { dbConfig, mailer, PORT, url, JWT: jwtConfig };
