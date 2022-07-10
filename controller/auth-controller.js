@@ -105,7 +105,6 @@ const refreshToken = async (req, res, next) => {
             }
         });
 
-        console.log(config.mailer.pass);
         const mailOptions = {
             from: config.mailer.user,
             to: req.body.email,

@@ -16,7 +16,7 @@ const message = {
     RIDE_ALREDY_ADDED: 'Ride alredy added',
     RIDE_AD_RETRIEVED_SUCCESS: 'Ride add retrived success',
     REQUEST_ALREADY_EXIST: 'You Already Request for this!',
-    User_Request_Submited_SUCCESSFULLY: 'User_Request_Submited_SUCCESSFULLY!',
+    USER_REQUEST_SUBMITED_SUCCESSFULLY: 'User request submited Successfully!',
     ALL_REQ_GET_SUCCESS: 'All Request for your ride is get Successfully!!',
     UPDATE_REQUEST: 'Ride Request Updated Successfully!',
     SAVE_RATING: 'Your Rating Submited Successfully!',
@@ -27,6 +27,7 @@ const message = {
     STATUS_FIELD_IS_REQUIRED: 'Status field is required',
     USER_ID_FIELD_IS_REQUIRED: 'User Id field is required',
     USER_STATUS_UPDATED_SUCCESFULLY: 'User status updated successfully',
+    CAR_NOT_FOUD: 'Car not found',
 
 };
 

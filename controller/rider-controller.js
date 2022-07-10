@@ -123,7 +123,12 @@ const showAdRide = async(req, res) => {
                   { to: applySearch },
                 ],
               };
+        }
 
+        if(req.query.id){
+            query[0]['$match'] = {...query[0]['$match'],
+                $and: [{_id: mongoose.Types.ObjectId(req.query.id)}]
+            }
         }
         
         const getAdRide = await RiderAd.aggregate(query);

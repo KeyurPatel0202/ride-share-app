@@ -29,42 +29,33 @@ const storeCarDetail = async (req, res)=>{
             primaryImage
         });
 
-        if(saveCar){
-            var pic = (req.files && req.files.images) ? req.files.images : []
-            files_param = req.files;
-            if (files_param && typeof pic.length === "undefined") {
-                console.log('single file',pic.name);
-                var fileName = 'car_' + Date.now() + path.extname(pic.name);
-                var newpath = "./public/car_images/" + fileName;
-                pic.mv(newpath, async function (err) {
-                    image_set = {
-                        'carId': saveCar.id,
-                        'image': fileName//'car_'+ pic.md5 + path.extname(pic.name),
-                    };    
-                    const saveCarImages = await UserCar.create(image_set);
-                    if (!saveCarImages) { return sendErrorResponse('Error uploading file.',err); }
-                });
-            } else {
-                console.log('multiple file');
-                for (let picone of pic) {
-                    var fileName = 'car_'+ Date.now() + path.extname(picone.name);
-                    var newpath = "./public/car_images/" + fileName;
-                    picone.mv(newpath,async function(err) {
-                        if (err) { result("Error uploading file.", err); return; }
-                        try {
-                            image_set = {
-                                'carId': saveCar.id,
-                                'image': fileName//'car_'+ pic.md5 + path.extname(pic.name),
-                            };    
-                            const saveCarImages = await UserCar.create(image_set);
-                        } catch (error) {
-                            console.log('Image Uploding error',error);
-                        }
-                    });                        
+        if(req.files && req.files.images){
+            const images = req.files.images;
+            
+            const len = images.length;
+            for(let i =0;i<len;i++){
+                const file = images[i];
+                const ext = path.extname(file.name).toLowerCase().split('.')[1];
+                const fileTypes = /jpeg|jpg|png/;
+                const extname = fileTypes.test(ext);
+        
+                if (!extname) {
+                    continue;
                 }
+
+                const fileName = new Date().getTime().toString() + i + '.' +ext;
+                const filePath = "./public/car_images/" + fileName;
+
+                file.mv(filePath, async function (err) {
+                    const imageSet = {
+                        'carId':saveCar.id,
+                        'image': fileName,
+                    };
+
+                    await UserCar.create(imageSet);
+                });
             }
         }
-        // File Upload : End 
 
         return sendSuccessResponse(res,getMessage('CAR_DEATIL_STORED_SUCCESSFULLY'), saveCar);
 
@@ -102,71 +93,57 @@ const carUpdate = async (req, res)=>{
         const userId = req.payload.aud;
         const carId = req.params.id;
         
+        const car = await Car.findOne({_id:mongoose.Types.ObjectId(carId)});
+        if(!car){
+            return sendErrorResponse(res,getMessage('CAR_NOT_FOUD'));
+        }
+
         const { number, totalSeat} = req.body;
-        const dataArray = {};
+
         if(req.files && req.files.primaryImage){
-            dataArray.primaryImage =  await fileCheckAndUpload(req.files.primaryImage, '../public/car_images'); 
+            car.primaryImage =  await fileCheckAndUpload(req.files.primaryImage, '../public/car_images'); 
         }
 
         if(number){
-            dataArray.number = number;
+            car.number = number;
         }
 
         if(totalSeat){
-            dataArray.totalSeat = totalSeat;
+            car.totalSeat = totalSeat;
         }
 
-        var UpdateCar = await Car.updateOne({'_id':carId},{$set:dataArray});
+        await Car.updateOne({'_id':carId},{$set:car});
 
-        if(UpdateCar){
-            var pic = (req.files && req.files.images) ? req.files.images : []
-            files_param = req.files;
-            if (files_param && typeof pic.length === "undefined") {
-                var fileName = 'car_' + Date.now() + path.extname(pic.name);
-                var newpath = "./public/car_images/" + fileName;
-                pic.mv(newpath, async function (err) {
-                    image_set = {
-                        'carId': carId,
-                        'image': fileName//'car_'+ pic.md5 + path.extname(pic.name),
-                    };    
-                    const saveCarImages = await UserCar.create(image_set);
-                    if (!saveCarImages) { return sendErrorResponse('Error uploading file.',err); }
+        if(req.files && req.files.images){
+            const images = req.files.images;
+            
+            const len = images.length;
+            for(let i =0;i<len;i++){
+                const file = images[i];
+                const ext = path.extname(file.name).toLowerCase().split('.')[1];
+                const fileTypes = /jpeg|jpg|png/;
+                const extname = fileTypes.test(ext);
+        
+                if (!extname) {
+                    continue;
+                }
+
+                const fileName = new Date().getTime().toString() + i + '.' +ext;
+                const filePath = "./public/car_images/" + fileName;
+
+                file.mv(filePath, async function (err) {
+                 
+                    const imageSet = {
+                        carId,
+                        'image': fileName,
+                    };
+
+                    await UserCar.create(imageSet);
                 });
-            } else {
-                for (let picone of pic) {
-                    var fileName = 'car_'+ Date.now() + path.extname(picone.name);
-                    var newpath = "./public/car_images/" + fileName;
-                    picone.mv(newpath,async function(err) {
-                        if (err) { result("Error uploading file.", err); return; }
-                        try {
-                            image_set = {
-                                'carId': carId,
-                                'image': fileName//'car_'+ pic.md5 + path.extname(pic.name),
-                            };    
-                            const saveCarImages = await UserCar.create(image_set);
-                        } catch (error) {
-                            console.log('Image Uploding error',error);
-                        }
-                    });                        
-                }
             }
         }
-        // File Upload : End 
-        const result = await Car.aggregate([
-            {
-                $match:{_id: mongoose.Types.ObjectId(carId)}
-            },
-            {
-                $lookup:{
-                    from: 'usercars',
-                    localField: '_id',
-                    foreignField: 'carId',
-                    as: 'car_images'
-                }
-            }
-        ]);
 
-        return sendSuccessResponse(res,getMessage('CAR_DEATIL_UPDATED_SUCCESSFULLY'), result);
+        return sendSuccessResponse(res,getMessage('CAR_DEATIL_UPDATED_SUCCESSFULLY'), car);
 
     }catch(error){
         return sendErrorResponse(res,error.message);

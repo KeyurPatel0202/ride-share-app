@@ -37,6 +37,7 @@ const storeUserRequest = async (req, res) => {
             }
         ]);
 
+        console.log({riderAd});
         if(!riderAd.length){
             throw new Error(getMessage('RIDER_ADD_DOEST_NOT_EXIST'));
         }
@@ -69,7 +70,7 @@ const storeUserRequest = async (req, res) => {
             is_complete
         });
 
-        return sendSuccessResponse(res,getMessage('User_Request_Submited_SUCCESSFULLY'), saveUserRequest);
+        return sendSuccessResponse(res,getMessage('USER_REQUEST_SUBMITED_SUCCESSFULLY'), saveUserRequest);
 
     }catch(error){
         return sendErrorResponse(res,error.message);
