@@ -7,6 +7,7 @@ const { signAccessToken, signRefreshToken, verifyRefreshToken } = require('../ut
 const {fileCheckAndUpload} = require('../utils/file-upload');
 const nodemailer = require('nodemailer');
 const config = require('../config/config');
+const {storeCar} = require('./car-controller');
 
 const register = async (req, res)=>{		
 	try{
@@ -14,11 +15,20 @@ const register = async (req, res)=>{
 			throw new Error(getMessage('PLEASE_SELECT_IMAGE'));
 		}
 		
-		const {fname, lname, phone, gender, dob, address, country, state, city, zip_code, email, password, type} = req.body;
+		const {fname, lname, phone, gender, dob, address, country, state, city, zip_code, email, password, type, number, totalSeat} = req.body;
 		const exist = await User.exists({email});
 		
 		if(exist){
 			return sendErrorResponse(res,getMessage('EMAIL_ALREADY_REGISTERED'));
+		}
+
+		if(type === 'RIDER'){
+			if(!number || !totalSeat){
+				throw new Error(getMessage('NUMBER_AND_TOAL_SEAT_REQUIRED'));
+			}
+			if(!req.files || !req.files.primaryImage){
+				throw new Error(getMessage('PLEASE_SELECT_PRIMARY_CAR_IMAGE'));
+			}
 		}
 
 		const image = await fileCheckAndUpload(req.files['image'], '../public/images');
@@ -36,11 +46,20 @@ const register = async (req, res)=>{
 		}
 		
 		const saveUser = await User.create(reqData);
+		const dataArray = {};
+
+		if(type === 'RIDER'){
+			let images = null;
+			if(req.files && req.files.images){
+				images = req.files.images;
+			}
+
+			const car = await storeCar(saveUser._id, number, totalSeat, req.files.primaryImage, images);
+			dataArray.carDetail = car;
+		}
 		
 		const accessToken = await signAccessToken(saveUser.id.toString());
     	const refreshToken = await signRefreshToken(saveUser.id.toString());
-
-    	const dataArray = {};
 
 		dataArray.user = saveUser;
 		dataArray.accessToken = accessToken;

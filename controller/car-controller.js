@@ -7,56 +7,64 @@ const getMessage = require('../utils/message');
 const {checkFile, uploadFile, fileCheckAndUpload} = require('../utils/file-upload');
 const mongoose = require('mongoose');
 
+const storeCar = async (userId, number, totalSeat, primaryImage, images = null) => { 
+
+    const existCar = await Car.exists({number});
+    
+    if(existCar) throw new Error(getMessage('CAR_DETAIL_ALREADY_STORED'));
+    
+    const primaryImageName = await fileCheckAndUpload(primaryImage, '../public/car_images');
+
+    const saveCar = await Car.create({
+        userId,
+        number,
+        totalSeat,
+        primaryImage:primaryImageName
+    });
+
+    if(images){ 
+        const len = images.length;
+        for(let i =0;i<len;i++){
+            const file = images[i];
+            const ext = path.extname(file.name).toLowerCase().split('.')[1];
+            const fileTypes = /jpeg|jpg|png/;
+            const extname = fileTypes.test(ext);
+    
+            if (!extname) {
+                continue;
+            }
+
+            const fileName = new Date().getTime().toString() + i + '.' +ext;
+            const filePath = "./public/car_images/" + fileName;
+
+            file.mv(filePath, async function (err) {
+                const imageSet = {
+                    'carId':saveCar.id,
+                    'image': fileName,
+                };
+
+                await UserCar.create(imageSet);
+            });
+        }
+    }
+
+    return saveCar;
+}
+
 const storeCarDetail = async (req, res)=>{
     try{
+        const userId = req.payload.aud;
 
         if(!req.files || !req.files.primaryImage){
             throw new Error(getMessage('PLEASE_SELECT_PRIMARY_CAR_IMAGE'));
         }
 
-        const primaryImage = await fileCheckAndUpload(req.files.primaryImage, '../public/car_images');
-
-        const {number, totalSeat} = req.body;
-        const userId = req.payload.aud;
-        const existCar = await Car.exists({number});
-		
-		if(existCar) return sendErrorResponse(res,getMessage('CAR_DETAIL_ALREADY_STORED'));
-        
-        const saveCar = await Car.create({
-            userId,
-            number,
-            totalSeat,
-            primaryImage
-        });
-
+        let images = null;
         if(req.files && req.files.images){
-            const images = req.files.images;
-            
-            const len = images.length;
-            for(let i =0;i<len;i++){
-                const file = images[i];
-                const ext = path.extname(file.name).toLowerCase().split('.')[1];
-                const fileTypes = /jpeg|jpg|png/;
-                const extname = fileTypes.test(ext);
-        
-                if (!extname) {
-                    continue;
-                }
-
-                const fileName = new Date().getTime().toString() + i + '.' +ext;
-                const filePath = "./public/car_images/" + fileName;
-
-                file.mv(filePath, async function (err) {
-                    const imageSet = {
-                        'carId':saveCar.id,
-                        'image': fileName,
-                    };
-
-                    await UserCar.create(imageSet);
-                });
-            }
+            images = req.files.images;
         }
 
+        const saveCar = await storeCar(userId, number, totalSeat, req.files.primaryImage, images);
         return sendSuccessResponse(res,getMessage('CAR_DEATIL_STORED_SUCCESSFULLY'), saveCar);
 
     }catch(error){
@@ -185,4 +193,4 @@ const deleteCarImages = async (req, res) =>{
     }
 }
 
-module.exports= {storeCarDetail, carList, carUpdate, carDelete, deleteCarImages};
+module.exports= {storeCar,storeCarDetail, carList, carUpdate, carDelete, deleteCarImages};

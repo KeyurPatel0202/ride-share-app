@@ -2,10 +2,13 @@ const UserRequest = require('../model/user.request.model');
 const userRating = require('../model/user.rating.model');
 const RiderAd  = require('../model/rider-add.model');
 const User = require('../model/user.model');
-
 const {sendSuccessResponse,sendErrorResponse} = require('../utils/response');
 const createError = require("http-errors");
 const getMessage = require('../utils/message');
+const {fileCheckAndUpload} = require('../utils/file-upload');
+const {showAdRideData} = require('./rider-controller');
+const {showRideRequestData} = require('./user-ad-controller');
+
 const mongoose = require("mongoose");
 
 const storeUserRequest = async (req, res) => {
@@ -37,7 +40,6 @@ const storeUserRequest = async (req, res) => {
             }
         ]);
 
-        console.log({riderAd});
         if(!riderAd.length){
             throw new Error(getMessage('RIDER_ADD_DOEST_NOT_EXIST'));
         }
@@ -75,6 +77,52 @@ const storeUserRequest = async (req, res) => {
     }catch(error){
         return sendErrorResponse(res,error.message);
     }
+};
+
+const updateProfile = async (req,res) =>{
+    try{
+
+        user_id = req.payload.aud;//data._id;
+ 
+        const exist = await User.findOne({user_id});    
+                    
+        if(!exist){
+            return sendErrorResponse(res,getMessage('OOPS!USER DOES NOT EXIST!')); 
+        }
+
+        const data = {};
+
+         if(req.files && req.files.image){
+            const image = await fileCheckAndUpload(req.files['image'], '../public/images');
+            data.image = image;
+        }
+
+        if(req.files && req.files.proof){
+            const proof = await fileCheckAndUpload(req.files['proof'], '../public/proof',/pdf/);
+            data.proof = proof;
+            data.isVerified = false;
+            data.status = 'PENDING';
+        }
+        
+       // data.email =  req.body.email || exist.email;
+        data.fname =  req.body.fname || exist.fname;
+        data.lname =  req.body.lname || exist.lname;
+        data.phone =  req.body.phone || exist.phone;
+        data.gender =   req.body.gender || exist.gender;
+        data.dob = req.body.dob || exist.dob;
+        data.address = req.body.address || exist.address;
+        data.country = req.body.country || exist.country;
+        data.state = req.body.state || exist.state;
+        data.city = req.body.city || exist.city;
+        data.zip_code = req.body.zip_code || exist.zip_code;
+        
+        const saveUser = await User.updateOne(data);
+        
+        return sendSuccessResponse(res,getMessage('USER_PROFILE_UPDATE_SUCCESSFULLY'), data);
+    }catch(error){
+        return sendErrorResponse(res,error.message);   
+    }
+    
 };
 
 const getUserRequest = async (req, res) => {
@@ -133,11 +181,11 @@ const getUserRequest = async (req, res) => {
 
 const updateUserRequest = async (req, res)=>{
     try{
-        const {r_id,user_id, rider_ad_id, status, is_complete} = req.body;
-        let update = {user_id:user_id,rider_ad_id:rider_ad_id,status:status,is_complete:is_complete};
-        var req_data = await db.collection("userrequests").updateOne({_id:ObjectId(r_id)},{$set:update});
+        const {ride_request_id, status, is_completeted} = req.body;
+        let update = {status,is_completeted};
+        var req_data = await UserRequest.updateOne({_id:mongoose.Types.ObjectId(ride_request_id)},{$set:update});
 
-        return sendSuccessResponse(res,getMessage('UPDATE_REQUEST'), req_data);
+        return sendSuccessResponse(res,getMessage('UPDATE_REQUEST'));
 
     }catch(error){
         return sendErrorResponse(res,error.message);
@@ -200,12 +248,34 @@ async function updateStatus (req,res){
    }
     try{
         var update_data = await User.updateOne( {_id: mongoose.Types.ObjectId(user_id)},{$set:{status}});
-        console.log(update_data)
         return sendSuccessResponse(res, getMessage('USER_STATUS_UPDATED_SUCCESFULLY') , update_data);
     }
-    catch(e){
-        return sendErrorResponse(res,e.message);   
+    catch(error){
+        return sendErrorResponse(res, error.message);   
     }   
 }
 
-module.exports= {storeUserRequest, getUserRequest, updateUserRequest, SubmitRating, userList, updateStatus};
+const getRides = async(req, res) => {
+    try{
+        const userId = req.payload.aud;
+        const user = await User.findOne({_id:mongoose.Types.ObjectId(userId)});
+
+        if(!user){
+            throw new Error(getMessage('USER_NOT_FOUND'));
+        }
+
+        let rideData = {};
+        if(user.type === 'USER'){
+            rideData = await showAdRideData(req);
+        }else{
+            rideData = await showRideRequestData(req);
+        }
+
+        return sendSuccessResponse(res, getMessage('RIDE_RETRIEVED_SUCCESS'), rideData);
+
+    }catch(error){
+        return sendErrorResponse(res,error.message);  
+    }
+}
+
+module.exports= {storeUserRequest, getUserRequest, updateUserRequest, SubmitRating, userList, updateStatus, updateProfile, getRides};

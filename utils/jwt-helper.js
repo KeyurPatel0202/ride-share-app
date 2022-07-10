@@ -9,7 +9,7 @@ module.exports = {
       const payload = {};
       const secret = config.accessToken;
       const options = {
-        expiresIn: '10000s',
+        expiresIn: '604800s',
         //issuer: "www.example.com",
         audience: user_id.toString(),
       };

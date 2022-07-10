@@ -28,7 +28,18 @@ const message = {
     USER_ID_FIELD_IS_REQUIRED: 'User Id field is required',
     USER_STATUS_UPDATED_SUCCESFULLY: 'User status updated successfully',
     CAR_NOT_FOUD: 'Car not found',
-
+    NUMBER_AND_TOAL_SEAT_REQUIRED:'number and total seat required',
+    USER_PROFILE_UPDATE_SUCCESSFULLY: 'User profile update successfully',
+    USER_REQUEST_NOT_EXISTS_OR_PENDING:'User request not exists or pending!',
+    RIDE_REQUEST_ALREADY_EXISTS: 'Ride request already exists',
+    NO_RIDE_REQUEST_FOUND: 'No ride request found',
+    RIDE_REQUEST_RETRIVED_SUCCESS: 'Ride Request retrived success',
+    RIDE_REQUEST_NOT_EXISTS: 'Ride request not exists',
+    USER_RIDE_REQUEST_UPDATED_SUCCESSFULLY:'User ride request updated successfully',
+    NO_RIDES_FOUND: 'No rides found!',
+    USER_NOT_FOUND: 'User not found!',
+    RIDE_RETRIEVED_SUCCESS:'Ride retrieved success',
+    USER_RIDE_REQUEST_DELETED_SUCCESSFULLY: 'User ride request deleted successfully',
 };
 
 const getMessage = (key)=>{

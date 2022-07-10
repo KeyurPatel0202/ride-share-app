@@ -5,5 +5,6 @@ const {verifyAccessToken} = require('../utils/jwt-helper');
 
 router.post('/', verifyAccessToken, riderController.adRide);
 router.get('/', verifyAccessToken, riderController.showAdRide);
+router.post('/request-action',verifyAccessToken,riderController.riderRequestAction);
 
 module.exports = router;
