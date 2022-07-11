@@ -40,12 +40,14 @@ const showAdRide = async(req, res) => {
 
 const showAdRideData = async(req) =>{
     const search = req.query.search;
-
+    const now = new Date();
+    now.setHours(0,0,0,0);
+    
     const query = [
         {
             $match: {
                     start_date: {
-                    $gte: new Date(), 
+                    $gte: now, 
                 },
                 status: 'NOT_STARTED',
             }
