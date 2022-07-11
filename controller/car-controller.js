@@ -64,6 +64,8 @@ const storeCarDetail = async (req, res)=>{
             images = req.files.images;
         }
 
+        const { number, totalSeat} = req.body;
+
         const saveCar = await storeCar(userId, number, totalSeat, req.files.primaryImage, images);
         return sendSuccessResponse(res,getMessage('CAR_DEATIL_STORED_SUCCESSFULLY'), saveCar);
 
