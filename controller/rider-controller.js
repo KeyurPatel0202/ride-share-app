@@ -43,6 +43,8 @@ const showAdRideData = async(req) =>{
     const now = new Date();
     now.setHours(0,0,0,0);
     now.setDate(now.getDate()-1);
+
+    console.log({now});
     
     const query = [
         {
