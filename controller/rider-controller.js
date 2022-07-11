@@ -43,14 +43,13 @@ const showAdRideData = async(req) =>{
     const now = new Date();
     now.setHours(0,0,0,0);
     const previousDate = new Date(now.setDate(now.getDate()-1));
-    console.log({previousDate});
-    
+
+//     const dt = new Date();
+//    console.log(dt.getFullYear());
+
     const query = [
         {
             $match: {
-                    start_date: {
-                    $gte: previousDate, 
-                },
                 status: 'NOT_STARTED',
             }
         },
