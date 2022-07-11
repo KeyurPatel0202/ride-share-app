@@ -42,7 +42,8 @@ const showAdRideData = async(req) =>{
     const search = req.query.search;
     const now = new Date();
     now.setHours(0,0,0,0);
-    console.log({now});
+    now.setDate(now.getDate()-1);
+    
     const query = [
         {
             $match: {
