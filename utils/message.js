@@ -40,6 +40,8 @@ const message = {
     USER_NOT_FOUND: 'User not found!',
     RIDE_RETRIEVED_SUCCESS:'Ride retrieved success',
     USER_RIDE_REQUEST_DELETED_SUCCESSFULLY: 'User ride request deleted successfully',
+    PENDING_APPROVAL: 'Please wait until admin approves your registration',
+    REJECTED_REGISTRATION: 'Your registration is rejected by admin due to unexpected behaviours. Please contact administrator to recover your account',
 };
 
 const getMessage = (key)=>{

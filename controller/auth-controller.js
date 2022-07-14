@@ -36,12 +36,12 @@ const register = async (req, res)=>{
 		const reqData = {fname, lname, phone, gender, dob, address, country, state, city, zip_code, email, password, type, image}
 
 		if(req.files.proof){
-			const proof = await fileCheckAndUpload(req.files['proof'], '../public/proof',/pdf/);
+			const proof = await fileCheckAndUpload(req.files['proof'], '../public/proof', /jpg|jpeg|png|pdf/);
 			reqData.proof = proof;
 		}
 
 		if(req.files.study_permit){
-			const study_permit = await fileCheckAndUpload(req.files['study_permit'], '../public/study_permit',/jpg|jpeg|png|pdf/);
+			const study_permit = await fileCheckAndUpload(req.files['study_permit'], '../public/study_permit', /jpg|jpeg|png|pdf/);
 			reqData.study_permit = study_permit;
 		}
 		
@@ -82,12 +82,17 @@ const login = async(req, res)=>{
 		const accessToken = await signAccessToken(user.id.toString());
 		const refreshToken = await signRefreshToken(user.id.toString());
 
-		const dataArray = {};
-		dataArray.user = user;
-		dataArray.accessToken = accessToken;
-		dataArray.refreshToken = refreshToken;
-		
-		return sendSuccessResponse(res, getMessage('USER_LOGIN_SUCCESSFULLY'), dataArray);
+		if(user.status === 'PENDING'){
+			throw createError.Unauthorized(getMessage('PENDING_APPROVAL'));
+		}else if(user.status === 'REJECTED'){
+			throw createError.Unauthorized(getMessage('REJECTED_REGISTRATION'));
+		}else{
+			const dataArray = {};
+			dataArray.user = user;
+			dataArray.accessToken = accessToken;
+			dataArray.refreshToken = refreshToken;
+			return sendSuccessResponse(res, getMessage('USER_LOGIN_SUCCESSFULLY'), dataArray);
+		}
 	}catch(error){
 		return sendErrorResponse(res,error.message);
 	}
