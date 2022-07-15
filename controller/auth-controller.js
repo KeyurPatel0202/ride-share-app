@@ -85,17 +85,20 @@ const login = async(req, res)=>{
 		const accessToken = await signAccessToken(user.id.toString());
 		const refreshToken = await signRefreshToken(user.id.toString());
 
-		if(user.status === 'PENDING'){
-			throw createError.Unauthorized(getMessage('PENDING_APPROVAL'));
-		}else if(user.status === 'REJECTED'){
-			throw createError.Unauthorized(getMessage('REJECTED_REGISTRATION'));
-		}else{
-			const dataArray = {};
+		if(user.type === 'RIDER'){
+			if(user.status === 'PENDING'){
+				throw createError.Unauthorized(getMessage('PENDING_APPROVAL'));
+			}else if(user.status === 'REJECTED'){
+				throw createError.Unauthorized(getMessage('REJECTED_REGISTRATION'));
+			}
+		}
+		
+		const dataArray = {};
 			dataArray.user = user;
 			dataArray.accessToken = accessToken;
 			dataArray.refreshToken = refreshToken;
 			return sendSuccessResponse(res, getMessage('USER_LOGIN_SUCCESSFULLY'), dataArray);
-		}
+			
 	}catch(error){
 		return sendErrorResponse(res,error.message);
 	}
