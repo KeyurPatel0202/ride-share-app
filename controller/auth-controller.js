@@ -8,6 +8,7 @@ const {fileCheckAndUpload} = require('../utils/file-upload');
 const nodemailer = require('nodemailer');
 const config = require('../config/config');
 const {storeCar} = require('./car-controller');
+const Car = require('../model/car.model');
 
 const register = async (req, res)=>{		
 	try{
@@ -18,9 +19,11 @@ const register = async (req, res)=>{
 		const {fname, lname, phone, gender, dob, address, country, state, city, zip_code, email, password, type, number, totalSeat} = req.body;
 		const exist = await User.exists({email});
 		
-		if(exist){
-			return sendErrorResponse(res,getMessage('EMAIL_ALREADY_REGISTERED'));
-		}
+		if(exist) throw new Error(getMessage('EMAIL_ALREADY_REGISTERED'));
+
+		const existCar = await Car.exists({number});
+    
+		if(existCar) throw new Error(getMessage('CAR_DETAIL_ALREADY_STORED'));
 
 		if(type === 'RIDER'){
 			if(!number || !totalSeat){

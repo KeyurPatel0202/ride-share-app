@@ -29,7 +29,7 @@ const UserSchema = mongoose.Schema({
     required: true,
   },
   dob:{
-    type: Date,
+    type: String,
     required: true,
   },
   address:{
@@ -49,7 +49,7 @@ const UserSchema = mongoose.Schema({
     required: true,
   },
   zip_code:{
-    type: Number,
+    type: String,
     required: true,
   },
   password: {

@@ -8,11 +8,7 @@ const {checkFile, uploadFile, fileCheckAndUpload} = require('../utils/file-uploa
 const mongoose = require('mongoose');
 
 const storeCar = async (userId, number, totalSeat, primaryImage, images = null) => { 
-
-    const existCar = await Car.exists({number});
-    
-    if(existCar) throw new Error(getMessage('CAR_DETAIL_ALREADY_STORED'));
-    
+ 
     const primaryImageName = await fileCheckAndUpload(primaryImage, '../public/car_images');
 
     const saveCar = await Car.create({
