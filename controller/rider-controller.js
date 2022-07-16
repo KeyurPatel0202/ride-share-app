@@ -15,7 +15,11 @@ const adRide = async (req, res) => {
         const {car_id, from, to, amount, start_date, start_time} = req.body;
         const user_id = req.payload.aud;
 
-        const data = {user_id, car_id, start_date, start_time};
+        const splitDate = start_date.split('/');
+        const newDate = `${splitDate[2]}-${splitDate[1]}-${splitDate[0]}`;
+        const StartDate = new Date(newDate);
+
+        const data = {user_id, car_id, start_date:StartDate, start_time};
         const exist = await riderAdd.exists(data);
 
         if(exist) throw new Error(getMessage('RIDE_ALREDY_ADDED'));
@@ -137,6 +141,15 @@ const showAdRideData = async(req) =>{
             $or: [
               { from: applySearch },
               { to: applySearch },
+            ],
+          };
+    }
+
+    if(req.query.start_time){
+        query[0]['$match'] = {
+            ...query[0]['$match'],
+            $and: [
+              { start_time: req.query.start_time },
             ],
           };
     }

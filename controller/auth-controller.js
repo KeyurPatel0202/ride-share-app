@@ -82,18 +82,21 @@ const login = async(req, res)=>{
     	const isMatch = await bcrypt.compare(req.body.password, user.password);
 		if (!isMatch) throw createError.Unauthorized(getMessage('INVALID_CREDENTIALS'));
 
-		const accessToken = await signAccessToken(user.id.toString());
-		const refreshToken = await signRefreshToken(user.id.toString());
+		const dataArray = {};
 
 		if(user.type === 'RIDER'){
 			if(user.status === 'PENDING'){
 				throw createError.Unauthorized(getMessage('PENDING_APPROVAL'));
 			}else if(user.status === 'REJECTED'){
 				throw createError.Unauthorized(getMessage('REJECTED_REGISTRATION'));
+			}else{
+				dataArray.car_details = await Car.findOne({user_id:user.id});
 			}
 		}
+
+		const accessToken = await signAccessToken(user.id.toString());
+		const refreshToken = await signRefreshToken(user.id.toString());
 		
-		const dataArray = {};
 			dataArray.user = user;
 			dataArray.accessToken = accessToken;
 			dataArray.refreshToken = refreshToken;
