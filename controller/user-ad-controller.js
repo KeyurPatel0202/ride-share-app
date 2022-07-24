@@ -61,11 +61,16 @@ const getAllRideRequest = async(req, res) => {
 }
 
 const showRideRequestData = async(req) =>{
+
+    const now = new Date();
+    now.setHours(0,0,0,0);
+    now.setDate(now.getDate()-1)
+
     const query = [
         {
             $match: {
                     start_date: {
-                    $gte: new Date(), 
+                    $gte: now, 
                 },
             }
         },
