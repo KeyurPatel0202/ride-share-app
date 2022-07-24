@@ -17,10 +17,9 @@ const adRide = async (req, res) => {
 
         const splitDate = start_date.split('-');
         const newDate = `${splitDate[2]}-${splitDate[1]}-${splitDate[0]}`;
-       // const startDate = new Date(newDate);
-       
-       const startDate = `${newDate}T00:00:00.000+00:00`;
-       console.log({startDate});
+        //const startDate = new Date(newDate);
+        const startDate = `${newDate}T00:00:00.000+00:00`;
+
         const data = {user_id, car_id, start_date:startDate, start_time};
         const exist = await riderAdd.exists(data);
 

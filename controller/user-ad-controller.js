@@ -7,7 +7,13 @@ const postRideRequest = async(req, res) => {
     try{
         const {from, to, budget, no_of_person, start_date, start_time} = req.body;
         const userId = req.payload.aud;
-        const data = {user_id:userId, from, to, start_date, start_time};
+
+        const splitDate = start_date.split('-');
+        const newDate = `${splitDate[2]}-${splitDate[1]}-${splitDate[0]}`;
+        //const startDate = new Date(newDate);
+        const startDate = `${newDate}T00:00:00.000+00:00`;
+
+        const data = {user_id:userId, from, to, start_date:startDate, start_time};
 
         const exists = await UserAd.exists(data);
         
