@@ -24,7 +24,7 @@ const RiderAdSchema = mongoose.Schema({
         required: true,
       },
       start_date:{
-          type: String,
+          type: Date,
           required: true,
       },
       start_time: {
