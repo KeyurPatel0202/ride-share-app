@@ -62,17 +62,32 @@ const getAllRideRequest = async(req, res) => {
 
 const showRideRequestData = async(req) =>{
 
-    const now = new Date();
+    /*const now = new Date();
     now.setHours(0,0,0,0);
-    now.setDate(now.getDate()-1)
+    now.setDate(now.getDate()-1);*/
+
+    const {from,to} = req.query;
+  
+    let toFilter={};
+    let fromFilter={};
+// 
+    if(to && typeof to !='undefined'){
+        toFilter={
+            to : to
+        }
+    }
+
+    if(from && typeof from !='undefined'){
+        fromFilter={
+            from : from
+        }
+    }
+
+    const filter={...fromFilter,...toFilter};
 
     const query = [
         {
-            $match: {
-                    start_date: {
-                    $gte: now, 
-                },
-            }
+            $match: filter,
         },
         {
             $lookup: {
