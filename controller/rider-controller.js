@@ -44,19 +44,33 @@ const showAdRide = async(req, res) => {
 }
 
 const showAdRideData = async(req) =>{
-    const search = req.query.search;
-    const now = new Date();
-    now.setHours(0,0,0,0);
-    now.setDate(now.getDate()-1)
+    // const search = req.query.search;
+    // const now = new Date();
+    // now.setHours(0,0,0,0);
+    // now.setDate(now.getDate()-1);
+
+    const {from,to} = req.query;
+  
+    let toFilter={};
+    let fromFilter={};
+// 
+    if(to && typeof to !='undefined'){
+        toFilter={
+            to : to
+        }
+    }
+
+    if(from && typeof from !='undefined'){
+        fromFilter={
+            from : from
+        }
+    }
+    const statusFilter={status: 'NOT_STARTED'}
+    const filter={...statusFilter,...fromFilter,...toFilter};
     
     const query = [
         {
-            $match: {
-                    start_date: {
-                    $gte: now, 
-                },
-                status: 'NOT_STARTED',
-            }
+            $match: filter
         },
         {
             $lookup: {
@@ -134,7 +148,7 @@ const showAdRideData = async(req) =>{
     ];
 
     
-    if(search){
+    /*if(search){
         const applySearch =  { $regex: search, $options: "i" };
 
         query[0]['$match'] = {
@@ -159,7 +173,7 @@ const showAdRideData = async(req) =>{
         query[0]['$match'] = {...query[0]['$match'],
             $and: [{_id: mongoose.Types.ObjectId(req.query.id)}]
         }
-    }
+    }*/
     
     const getAdRide = await RiderAd.aggregate(query);
 
@@ -267,6 +281,7 @@ async function rejectUserRequestByRider(request_id,rider_id){
         throw e;
     }
 }
+
 async function rejectRideRequestByUser(request_id){
     try{
         var reject_request = await UserRequest.findOne({_id:mongoose.Types.ObjectId(request_id),status:"ACCEPTED"})
@@ -341,14 +356,21 @@ async function deleteRideByRider(ride_ad_id){
             const users_email = await User.find({_id:{$in:users}}).select("email");
             const users_emails = _.pluck(users_email,"email");
             const ride_data = await RiderAd.findOne({_id:ride_ad_id})
-            setTimeout(async function(){
-             //console.log(ride_data)
-                const subject = "Ride Has Been Canceled By Rider!";
-                const text = "Dear User  your Ride "+ride_data.from+ " - "+ride_data.to + " on "+ride_data.start_date.toString()+ " at "+ ride_data.start_time.toString() +" is rejected by Rider . Regards Ride Share App";
-                await send_mail(users_emails,subject,text);
-            },200)
+            if(ride_data && typeof ride_data != 'undefined'){
+             
+                setTimeout(async function(){
+                    //console.log(ride_data)
+                    const subject = "Ride Has Been Canceled By Rider!";
+                    const text = "Dear User  your Ride "+ride_data.from+ " - "+ride_data.to + " on "+ride_data.start_date.toString()+ " at "+ ride_data.start_time.toString() +" is rejected by Rider . Regards Ride Share App";
+                    await send_mail(users_emails,subject,text);
+                },200);
+            }
         }
-        return ride_users
+        
+        // await UserRequest.deleteMany({ride_ad_id:ride_ad_id});
+        await RiderAd.deleteOne({_id:ride_ad_id});
+
+        return true;
     }
     catch(error){
        throw error;
@@ -383,7 +405,6 @@ const send_mail = async (recipient,subject,text) => {
         
         transporter.sendMail(mailOptions, function (error, info) {
             if (error) {
-                console.log(error.message)
                 return false;//sendErrorResponse(res,'Verification failed');
             } else {
                 console.log("email sended successfully");
@@ -392,10 +413,27 @@ const send_mail = async (recipient,subject,text) => {
 
         });
     }catch(error){
-        console.log(error.message)
         return false;
         //return sendErrorResponse(res,error.message);
     }
 }
 
-module.exports = {adRide, showAdRideData,showAdRide, riderRequestAction};
+const deleteAdRide = async(req, res) => {
+    try{
+        const userId = req.payload.aud;
+        const id = req.params.id;
+
+        const exists = await RiderAd.exists({_id: mongoose.Types.ObjectId(id)});
+       
+        if(!exists){
+            throw new Error(getMessage('NO_RIDES_FOUND'));
+        }
+
+       const result = await RiderAd.deleteOne({_id:id});
+        return sendSuccessResponse(res,getMessage('RIDE_DELETE_SUCCESS'), result);
+    }catch(error){
+        return sendErrorResponse(res, error.message);
+    }
+}
+
+module.exports = {adRide, showAdRideData,showAdRide, riderRequestAction, deleteAdRide};
