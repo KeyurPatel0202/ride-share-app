@@ -49,10 +49,11 @@ const showAdRideData = async(req) =>{
     // now.setHours(0,0,0,0);
     // now.setDate(now.getDate()-1);
 
-    const {from,to} = req.query;
+    const {from,to,id} = req.query;
   
-    let toFilter={};
-    let fromFilter={};
+    let toFilter = {};
+    let fromFilter = {};
+    let idFilter = {};
 // 
     if(to && typeof to !='undefined'){
         toFilter={
@@ -65,8 +66,15 @@ const showAdRideData = async(req) =>{
             from : from
         }
     }
+
+    if(id && typeof id !='undefined'){
+        idFilter={
+            _id : mongoose.Types.ObjectId(id)
+        }
+    }
+
     const statusFilter={status: 'NOT_STARTED'}
-    const filter={...statusFilter,...fromFilter,...toFilter};
+    const filter={...statusFilter,...fromFilter,...toFilter,...idFilter};
     
     const query = [
         {

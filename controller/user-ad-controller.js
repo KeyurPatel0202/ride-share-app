@@ -66,10 +66,11 @@ const showRideRequestData = async(req) =>{
     now.setHours(0,0,0,0);
     now.setDate(now.getDate()-1);*/
 
-    const {from,to} = req.query;
+    const {from,to,id} = req.query;
   
-    let toFilter={};
-    let fromFilter={};
+    let toFilter = {};
+    let fromFilter = {};
+    let idFilter = {};
 // 
     if(to && typeof to !='undefined'){
         toFilter={
@@ -83,7 +84,13 @@ const showRideRequestData = async(req) =>{
         }
     }
 
-    const filter={...fromFilter,...toFilter};
+    if(id && typeof id !='undefined'){
+        idFilter={
+            _id : mongoose.Types.ObjectId(id)
+        }
+    }
+
+    const filter={...fromFilter,...toFilter,...idFilter};
 
     const query = [
         {
