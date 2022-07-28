@@ -65,6 +65,8 @@ const showRideRequestData = async(req) =>{
     /*const now = new Date();
     now.setHours(0,0,0,0);
     now.setDate(now.getDate()-1);*/
+    
+    const userId = req.payload.aud;
 
     const {from,to,id} = req.query;
   
@@ -89,8 +91,8 @@ const showRideRequestData = async(req) =>{
             _id : mongoose.Types.ObjectId(id)
         }
     }
-
-    const filter={...fromFilter,...toFilter,...idFilter};
+    
+    const filter={user_id: mongoose.Types.ObjectId(userId),...fromFilter,...toFilter,...idFilter};
 
     const query = [
         {
