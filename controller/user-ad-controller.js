@@ -91,7 +91,7 @@ const showRideRequestData = async(req) =>{
             _id : mongoose.Types.ObjectId(id)
         }
     }
-    
+
     const filter={user_id: mongoose.Types.ObjectId(userId),...fromFilter,...toFilter,...idFilter};
 
     const query = [

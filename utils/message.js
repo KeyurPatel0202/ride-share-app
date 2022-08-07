@@ -43,6 +43,13 @@ const message = {
     PENDING_APPROVAL: 'Please wait until admin approves your registration',
     REJECTED_REGISTRATION: 'Your registration is rejected by admin due to unexpected behaviours. Please contact administrator to recover your account',
     RIDE_DELETE_SUCCESS: 'Ride successfully deleted',
+    RATE_ALREDY_GIVEN: 'Rate already given to this ride',
+    RATE_GIVEN_SUCCESS: 'Rate given successfully',
+    RATE_NOT_FOUND: 'Rate not found',
+    RATE_DELETED_SUCCESS: 'Rate successfully deleted',
+    RATE_RETRIEVED_SUCCESS: 'Rate retrieved success',
+    NO_RATES_FOUND_FOR_THIS_RIDE: 'No rates found for this ride',
+    RATE_UPDATED_SUCCESS: 'Rate successfully updated',
 };
 
 const getMessage = (key)=>{
