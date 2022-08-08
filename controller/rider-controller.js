@@ -36,24 +36,27 @@ const adRide = async (req, res) => {
 
 const showAdRide = async(req, res) => {
     try{
-        const getAdRide = await showAdRideData(req);
+        const getAdRide = await showAdRideData(req, 'RIDER');
         return sendSuccessResponse(res, getMessage('RIDE_AD_RETRIEVED_SUCCESS'), getAdRide);
     }catch(error){
         return sendErrorResponse(res,error.message);
     }
 }
 
-const showAdRideData = async(req) =>{
+const showAdRideData = async(req, userType) =>{
     // const search = req.query.search;
     // const now = new Date();
     // now.setHours(0,0,0,0);
     // now.setDate(now.getDate()-1);
+
+    const userId = req.payload.aud;
 
     const {from,to,id} = req.query;
   
     let toFilter = {};
     let fromFilter = {};
     let idFilter = {};
+    let userIdFilter = {};
 // 
     if(to && typeof to !='undefined'){
         toFilter={
@@ -73,8 +76,12 @@ const showAdRideData = async(req) =>{
         }
     }
 
+    if(userType === 'RIDER'){
+        userIdFilter =  {user_id: mongoose.Types.ObjectId(userId)};
+    }
+
     const statusFilter={status: 'NOT_STARTED'}
-    const filter={...statusFilter,...fromFilter,...toFilter,...idFilter};
+    const filter={...userIdFilter,...statusFilter,...fromFilter,...toFilter,...idFilter};
     
     const query = [
         {

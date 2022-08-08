@@ -52,7 +52,7 @@ const updateUserAd = async(req, res) => {
 
 const getAllRideRequest = async(req, res) => {
     try{
-        const rideRequests = await showRideRequestData(req);
+        const rideRequests = await showRideRequestData(req, 'USER');
 
         return sendSuccessResponse(res, getMessage('RIDE_REQUEST_RETRIVED_SUCCESS'), rideRequests);
     }catch(error){
@@ -60,12 +60,12 @@ const getAllRideRequest = async(req, res) => {
     }
 }
 
-const showRideRequestData = async(req) =>{
+const showRideRequestData = async(req, userType) =>{
 
     /*const now = new Date();
     now.setHours(0,0,0,0);
     now.setDate(now.getDate()-1);*/
-    
+
     const userId = req.payload.aud;
 
     const {from,to,id} = req.query;
@@ -73,7 +73,12 @@ const showRideRequestData = async(req) =>{
     let toFilter = {};
     let fromFilter = {};
     let idFilter = {};
-// 
+    let userIdFilter = {};
+
+    if(userType === 'USER'){
+        userIdFilter = {user_id: mongoose.Types.ObjectId(userId)};
+    }
+
     if(to && typeof to !='undefined'){
         toFilter={
             to : to
@@ -92,8 +97,8 @@ const showRideRequestData = async(req) =>{
         }
     }
 
-    const filter={user_id: mongoose.Types.ObjectId(userId),...fromFilter,...toFilter,...idFilter};
-
+    const filter={...userIdFilter,...fromFilter,...toFilter,...idFilter};
+    
     const query = [
         {
             $match: filter,

@@ -266,9 +266,9 @@ const getRides = async(req, res) => {
 
         let rideData = {};
         if(user.type === 'USER'){
-            rideData = await showAdRideData(req);
+            rideData = await showAdRideData(req, 'USER');
         }else{
-            rideData = await showRideRequestData(req);
+            rideData = await showRideRequestData(req, 'RIDER');
         }
 
         return sendSuccessResponse(res, getMessage('RIDE_RETRIEVED_SUCCESS'), rideData);
